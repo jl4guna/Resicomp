@@ -1,43 +1,31 @@
 import { LoaderFunction, redirect } from '@remix-run/cloudflare';
-import { OAuth2Client } from 'google-auth-library';
 import { createUserSession } from '~/services/auth.server';
 import type { UserSession } from '~/services/auth.server';
 import { getBaseUrl } from '~/utils/env.server';
+import { getGoogleTokens, getGoogleUserInfo } from '~/utils/google.server';
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
   const code = url.searchParams.get('code');
   const baseUrl = getBaseUrl(request);
+  const redirectUri = `${baseUrl}/auth/google/callback`;
 
   if (!code) {
     return redirect('/login');
   }
 
   try {
-    const oauth2Client = new OAuth2Client(
-      process.env.GOOGLE_CLIENT_ID,
-      process.env.GOOGLE_CLIENT_SECRET,
-      `${baseUrl}/auth/google/callback`
-    );
+    // Get tokens from Google
+    const tokens = await getGoogleTokens(code, redirectUri);
 
-    const { tokens } = await oauth2Client.getToken(code);
-    oauth2Client.setCredentials(tokens);
-
-    const ticket = await oauth2Client.verifyIdToken({
-      idToken: tokens.id_token!,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-
-    const payload = ticket.getPayload();
-    if (!payload) {
-      throw new Error('No user payload');
-    }
+    // Get user info using the access token
+    const userInfo = await getGoogleUserInfo(tokens.access_token);
 
     const user: UserSession = {
-      id: payload.sub,
-      email: payload.email || '',
-      name: payload.name || '',
-      picture: payload.picture || '',
+      id: userInfo.sub,
+      email: userInfo.email,
+      name: userInfo.name,
+      picture: userInfo.picture,
     };
 
     // Create a session for the user
