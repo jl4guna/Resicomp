@@ -7,6 +7,12 @@ interface Env {
   NODE_ENV: string;
 }
 
+declare module '@remix-run/server-runtime' {
+  interface AppLoadContext {
+    env: Env;
+  }
+}
+
 declare module '@remix-run/cloudflare' {
   interface AppLoadContext {
     env: Env;

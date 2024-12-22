@@ -1,10 +1,11 @@
-import { LoaderFunction, redirect } from '@remix-run/cloudflare';
+import type { LoaderFunctionArgs } from '@remix-run/node';
+import { redirect } from '@remix-run/node';
 import { createUserSession } from '~/services/auth.server';
 import type { UserSession } from '~/services/auth.server';
 import { getBaseUrl } from '~/utils/env.server';
 import { getGoogleTokens, getGoogleUserInfo } from '~/utils/google.server';
 
-export const loader: LoaderFunction = async ({ request, context }) => {
+export const loader = async ({ request, context }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const code = url.searchParams.get('code');
   const baseUrl = getBaseUrl(request, context.env);

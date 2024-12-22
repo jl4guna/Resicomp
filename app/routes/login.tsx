@@ -1,4 +1,5 @@
-import type { LoaderFunction } from '@remix-run/cloudflare';
+import type { LoaderFunctionArgs } from '@remix-run/node';
+import { json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import { getUserSession } from '~/services/auth.server';
 import type { UserSession } from '~/services/auth.server';
@@ -9,7 +10,7 @@ type LoaderData = {
   googleAuthUrl: string;
 };
 
-export const loader: LoaderFunction = async ({ request, context }) => {
+export const loader = async ({ request, context }: LoaderFunctionArgs) => {
   const user = await getUserSession(request);
   const baseUrl = getBaseUrl(request, context.env);
 
@@ -19,7 +20,7 @@ export const loader: LoaderFunction = async ({ request, context }) => {
     `${baseUrl}/auth/google/callback`
   )}&response_type=code&scope=email profile`;
 
-  return { user, googleAuthUrl } as LoaderData;
+  return json<LoaderData>({ user, googleAuthUrl });
 };
 
 export default function Login() {

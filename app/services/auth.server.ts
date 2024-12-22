@@ -1,4 +1,7 @@
-import { createCookieSessionStorage, redirect } from '@remix-run/cloudflare';
+import {
+  createCookieSessionStorage,
+  redirect,
+} from '@remix-run/server-runtime';
 
 export type UserSession = {
   id: string;
@@ -14,8 +17,8 @@ export const sessionStorage = createCookieSessionStorage({
     sameSite: 'lax',
     path: '/',
     httpOnly: true,
-    secrets: [process.env.SESSION_SECRET || 'default-secret'],
-    secure: process.env.NODE_ENV === 'production',
+    secrets: ['default-secret'],
+    secure: true,
   },
 });
 
