@@ -9,12 +9,12 @@ type LoaderData = {
   googleAuthUrl: string;
 };
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader: LoaderFunction = async ({ request, context }) => {
   const user = await getUserSession(request);
-  const baseUrl = getBaseUrl(request);
+  const baseUrl = getBaseUrl(request, context.env);
 
   const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${
-    process.env.GOOGLE_CLIENT_ID
+    context.env.GOOGLE_CLIENT_ID
   }&redirect_uri=${encodeURIComponent(
     `${baseUrl}/auth/google/callback`
   )}&response_type=code&scope=email profile`;

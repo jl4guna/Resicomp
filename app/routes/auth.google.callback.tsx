@@ -4,10 +4,10 @@ import type { UserSession } from '~/services/auth.server';
 import { getBaseUrl } from '~/utils/env.server';
 import { getGoogleTokens, getGoogleUserInfo } from '~/utils/google.server';
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader: LoaderFunction = async ({ request, context }) => {
   const url = new URL(request.url);
   const code = url.searchParams.get('code');
-  const baseUrl = getBaseUrl(request);
+  const baseUrl = getBaseUrl(request, context.env);
   const redirectUri = `${baseUrl}/auth/google/callback`;
 
   if (!code) {
@@ -16,7 +16,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   try {
     // Get tokens from Google
-    const tokens = await getGoogleTokens(code, redirectUri);
+    const tokens = await getGoogleTokens(code, redirectUri, context.env);
 
     // Get user info using the access token
     const userInfo = await getGoogleUserInfo(tokens.access_token);

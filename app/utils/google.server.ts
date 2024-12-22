@@ -12,7 +12,8 @@ interface GoogleUserInfo {
 
 export async function getGoogleTokens(
   code: string,
-  redirectUri: string
+  redirectUri: string,
+  env: { GOOGLE_CLIENT_ID: string; GOOGLE_CLIENT_SECRET: string }
 ): Promise<GoogleTokenResponse> {
   const response = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
@@ -21,8 +22,8 @@ export async function getGoogleTokens(
     },
     body: new URLSearchParams({
       code,
-      client_id: process.env.GOOGLE_CLIENT_ID!,
-      client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+      client_id: env.GOOGLE_CLIENT_ID,
+      client_secret: env.GOOGLE_CLIENT_SECRET,
       redirect_uri: redirectUri,
       grant_type: 'authorization_code',
     }),
